@@ -1,0 +1,49 @@
+plugins {
+    id "com.github.hierynomus.license" version "0.13.0"
+    id "com.xebialabs.xlr.docker" version "1.1.12"
+}
+
+version='1.0.0'
+
+apply plugin: 'java'
+apply plugin: 'idea'
+apply plugin: 'eclipse'
+apply plugin: 'maven'
+
+def apiVersion = '2016.1.0'
+
+def xlReleaseHome = project.hasProperty('xlReleaseHome') ? project.xlReleaseHome : System.env.XLRELEASE_HOME
+if (!xlReleaseHome) {
+  throw new RuntimeException("Please specify location of unpacked XL Release server installation in your " +
+      "gradle.properties or with '-PxlReleaseHome=/path/to/xl/release/server' command line option")
+}
+
+xlrDocker {
+    version = '5.0.1.10'
+}
+
+repositories {
+    mavenCentral()
+    maven {
+        credentials {
+            username 'community-plugins'
+            password 'community'
+        }
+        url 'http://nexus.xebialabs.com/nexus/content/repositories/releases'
+    }
+}
+
+dependencies {
+    compile "com.xebialabs.deployit:udm-plugin-api:$apiVersion"
+    compile "com.xebialabs.deployit:engine-spi:$apiVersion"
+    compile fileTree(dir: "$xlReleaseHome/lib", include: ['server*.jar'])
+
+    compile "org.apache.httpcomponents:httpclient:4.4.1"
+    compile "nl.javadude.t2bus:t2-bus:1.2.1"
+}
+
+
+license {
+    header rootProject.file('src/main/license/xebialabs_community.license')
+    strictCheck false
+}

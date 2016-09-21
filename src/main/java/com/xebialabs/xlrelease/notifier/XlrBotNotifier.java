@@ -1,19 +1,21 @@
 package com.xebialabs.xlrelease.notifier;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Properties;
 
+import org.apache.http.HttpResponse;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.mashape.unirest.http.HttpResponse;
-import com.mashape.unirest.http.Unirest;
-import com.mashape.unirest.http.exceptions.UnirestException;
 import com.xebialabs.deployit.engine.spi.command.CreateCiCommand;
 import com.xebialabs.deployit.engine.spi.command.CreateCisCommand;
 import com.xebialabs.deployit.engine.spi.event.CiBaseEvent;
 import com.xebialabs.deployit.engine.spi.event.DeployitEventListener;
-import com.xebialabs.deployit.event.EventBusHolder;
 import com.xebialabs.deployit.plugin.api.udm.ConfigurationItem;
 import com.xebialabs.xlrelease.api.XLReleaseServiceHolder;
 import com.xebialabs.xlrelease.domain.ActivityLogEntry;
@@ -49,11 +51,10 @@ public class XlrBotNotifier {
 		}
 		LOG.debug("Using bot URL " + botURL);
 		
-		EventBusHolder.register(this);
 	}
 
     @Subscribe
-    public void createCi(CreateCiCommand command) throws UnirestException {
+    public void createCi(CreateCiCommand command) {
     	final ConfigurationItem ci = command.getCi();
     	notifyForCiCreation(ci);
     }
@@ -113,17 +114,23 @@ public class XlrBotNotifier {
 	
 	private void postNotification(String id, String type, String message, String taskId) {
 		try {
-			HttpResponse<String> jsonResponse = Unirest.post(botURL + "/activity")
-					  .header("Content-type", "application/json")
-					  .body("{ \"id\": \"" + id + "\", \"type\": \"" + type 
-							  + "\", \"message\": \"" + message + "\", \"taskId\": \"" + taskId + "\" }")
-					  .asString();
-			if (jsonResponse.getStatus() != 200) {
-				LOG.debug("Failed to push event to bot, status code " + jsonResponse.getStatusText());
+			CloseableHttpClient httpClient = HttpClients.createDefault();
+			HttpPost postRequest = new HttpPost(botURL + "/activity");
+
+			StringEntity input = new StringEntity("{ \"id\": \"" + id + "\", \"type\": \"" + type
+					+ "\", \"message\": \"" + message + "\", \"taskId\": \"" + taskId + "\" }");
+			input.setContentType("application/json");
+			postRequest.setEntity(input);
+
+			HttpResponse response = httpClient.execute(postRequest);
+
+
+			if (response.getStatusLine().getStatusCode() != 200) {
+				LOG.debug("Failed to push event to bot, status code " + response.getStatusLine().getStatusCode());
 			}
-		} catch(UnirestException e) {
-			// fail silently
-			LOG.debug("Failed to push event to bot", e);
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
+
 	}
 }
