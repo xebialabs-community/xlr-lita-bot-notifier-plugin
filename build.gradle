@@ -1,9 +1,9 @@
 plugins {
-    id "com.github.hierynomus.license" version "0.14.0"
-    id "com.xebialabs.xl.docker" version "1.1.0"
+  id "com.github.hierynomus.license" version "0.14.0"
+  id "com.xebialabs.xl.docker" version "1.1.0"
 }
 
-version='1.0.0'
+version = '1.0.0'
 
 apply plugin: 'java'
 apply plugin: 'idea'
@@ -15,35 +15,36 @@ def apiVersion = '2016.1.0'
 def xlReleaseHome = project.hasProperty('xlReleaseHome') ? project.xlReleaseHome : System.env.XLRELEASE_HOME
 if (!xlReleaseHome) {
   throw new RuntimeException("Please specify location of unpacked XL Release server installation in your " +
-      "gradle.properties or with '-PxlReleaseHome=/path/to/xl/release/server' command line option")
+    "gradle.properties or with '-PxlReleaseHome=/path/to/xl/release/server' command line option")
 }
 
 xlDocker {
-    compileImage = 'xebialabs/xlr_dev_compile'
-    compileVersion = 'v7.0.1.1'
-    runImage = 'xebialabs/xlr_dev_run'
-    runVersion = 'v7.0.1.1'
-    runPortMapping = '15516:5516'
+  compileImage = 'xebialabs/xlr_dev_compile'
+  compileVersion = 'v7.0.1.1'
+  runImage = 'xebialabs/xlr_dev_run'
+  runVersion = 'v7.0.1.1'
+  runPortMapping = '15516:5516'
 }
 
 repositories {
-    mavenCentral()
-    maven {
-        url 'https://dist.xebialabs.com/public/maven2'
-    }
+  mavenCentral()
+  maven {
+    url 'https://dist.xebialabs.com/public/maven2'
+  }
 }
 
 dependencies {
-    compile "com.xebialabs.deployit:udm-plugin-api:$apiVersion"
-    compile "com.xebialabs.deployit:engine-spi:$apiVersion"
-    compile files("$xlReleaseHome/lib/xlr-domain-7.0.1.jar", "$xlReleaseHome/lib/xlr-server-7.0.1.jar", "$xlReleaseHome/lib/xlr-activity-logs-module-7.0.1.jar")
+  compile "com.xebialabs.deployit:udm-plugin-api:$apiVersion"
+  compile "com.xebialabs.deployit:engine-spi:$apiVersion"
+  compile group: "com.xebialabs.xl-platform", name: "xl-repository-api", version: "$apiVersion", transitive: false
+  compile files("$xlReleaseHome/lib/xlr-domain-7.0.1.jar", "$xlReleaseHome/lib/xlr-server-7.0.1.jar", "$xlReleaseHome/lib/xlr-activity-logs-module-7.0.1.jar")
 
-    compile "org.apache.httpcomponents:httpclient:4.4.1"
-    compile "nl.javadude.t2bus:t2-bus:1.2.1"
+  compile "org.apache.httpcomponents:httpclient:4.4.1"
+  compile "nl.javadude.t2bus:t2-bus:1.2.1"
 }
 
 
 license {
-    header rootProject.file('src/main/license/xebialabs_community.license')
-    strictCheck false
+  header rootProject.file('src/main/license/xebialabs_community.license')
+  strictCheck false
 }
