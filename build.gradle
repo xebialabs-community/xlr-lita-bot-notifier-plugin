@@ -36,7 +36,7 @@ repositories {
 dependencies {
     compile "com.xebialabs.deployit:udm-plugin-api:$apiVersion"
     compile "com.xebialabs.deployit:engine-spi:$apiVersion"
-    compile files("$xlReleaseHome/lib/xlr-domain-7.0.1.jar", "$xlReleaseHome/lib/xlr-server-7.0.1.jar")
+    compile files("$xlReleaseHome/lib/xlr-domain-7.0.1.jar", "$xlReleaseHome/lib/xlr-server-7.0.1.jar", "$xlReleaseHome/lib/xlr-activity-logs-module-7.0.1.jar")
 
     compile "org.apache.httpcomponents:httpclient:4.4.1"
     compile "nl.javadude.t2bus:t2-bus:1.2.1"
