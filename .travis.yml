@@ -3,4 +3,4 @@ language: java
 install: true
 script: "./gradlew compileDocker"
 services:
--docker
+  - docker
